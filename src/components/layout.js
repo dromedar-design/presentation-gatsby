@@ -1,51 +1,127 @@
-/**
- * Layout component that queries for data
- * with Gatsby's useStaticQuery component
- *
- * See: https://www.gatsbyjs.org/docs/use-static-query/
- */
+import { motion } from 'framer-motion'
+import { graphql, navigate, useStaticQuery } from 'gatsby'
+import 'normalize.css'
+import React, { useEffect } from 'react'
+import Helmet from 'react-helmet'
+import './layout.css'
 
-import React from "react"
-import PropTypes from "prop-types"
-import { useStaticQuery, graphql } from "gatsby"
+const NEXT = [13, 32, 39]
+const PREV = [37]
 
-import Header from "./header"
-import "./layout.css"
-
-const Layout = ({ children }) => {
+export default ({ children, index }) => {
   const data = useStaticQuery(graphql`
-    query SiteTitleQuery {
-      site {
-        siteMetadata {
-          title
-        }
+    query SlideCount {
+      allSlide {
+        totalCount
       }
     }
   `)
 
+  const changeSlide = (next = true) => {
+    const newIndex = index + (next ? 1 : -1)
+    if (newIndex > data.allSlide.totalCount || newIndex < 1) {
+      return
+    }
+
+    navigate(`/${newIndex}`)
+  }
+
+  const onKeyDown = ({ keyCode }) => {
+    if (NEXT.indexOf(keyCode) !== -1) {
+      changeSlide()
+      return
+    }
+
+    if (PREV.indexOf(keyCode) !== -1) {
+      changeSlide(false)
+      return
+    }
+  }
+
+  useEffect(() => {
+    document.addEventListener('keydown', onKeyDown)
+
+    return () => document.removeEventListener('keydown', onKeyDown)
+  })
+
   return (
-    <>
-      <Header siteTitle={data.site.siteMetadata.title} />
+    <div>
+      <Helmet>
+        <link
+          href="https://fonts.googleapis.com/css?family=Roboto:400,700&display=swap"
+          rel="stylesheet"
+        />
+      </Helmet>
+
       <div
         style={{
-          margin: `0 auto`,
-          maxWidth: 960,
-          padding: `0 1.0875rem 1.45rem`,
+          height: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '2rem',
         }}
       >
-        <main>{children}</main>
-        <footer>
-          © {new Date().getFullYear()}, Built with
-          {` `}
-          <a href="https://www.gatsbyjs.org">Gatsby</a>
+        <header
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          <span>Gábor</span>
+          <div>{`${index} / ${data.allSlide.totalCount}`}</div>
+        </header>
+
+        <motion.main
+          className={index % 2 ? 'dd-slide-odd' : 'dd-slide-even'}
+          transition={{
+            y: { type: 'spring', damping: 20, stiffness: 300 },
+            opacity: { duration: 0.3 },
+          }}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          style={{
+            alignSelf: 'center',
+            flex: 1,
+            maxWidth: '70rem',
+            padding: '2rem',
+          }}
+        >
+          {children}
+        </motion.main>
+
+        <footer
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+          }}
+        >
+          <a
+            target="_blank"
+            href="https://dromedar.design"
+            rel="noopener noreferrer"
+          >
+            https://dromedar.design
+          </a>
+
+          <div>
+            <button
+              onClick={() => changeSlide(false)}
+              style={{ margin: 10 }}
+              class="dd-navigation"
+            >
+              &#8249;
+            </button>
+            <button
+              onClick={() => changeSlide()}
+              style={{ margin: 10 }}
+              class="dd-navigation"
+            >
+              &#8250;
+            </button>
+          </div>
         </footer>
       </div>
-    </>
+    </div>
   )
 }
-
-Layout.propTypes = {
-  children: PropTypes.node.isRequired,
-}
-
-export default Layout
