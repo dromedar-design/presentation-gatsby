@@ -5,7 +5,7 @@ admin_path:
 webhook_url: 
 sections:
 - type: directory
-  path: src/slides
+  path: slides
   label: Slides
   create: all
   match: "**/*"
