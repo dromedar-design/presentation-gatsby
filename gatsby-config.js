@@ -60,7 +60,7 @@ module.exports = {
           position: 'displace',
         },
         plugins: [
-          'gatsby-tinacms-git',
+          'gatsby-tinacms-remark',
           {
             resolve: 'gatsby-tinacms-git',
             options: {
