@@ -1,5 +1,5 @@
 ---
-title: this is new title
+title: alma is a nice word
 slug: alma
 ---
 
