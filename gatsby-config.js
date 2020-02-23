@@ -59,7 +59,15 @@ module.exports = {
           hidden: process.env.NODE_ENV === 'production',
           position: 'displace',
         },
-        plugins: ['gatsby-tinacms-git', 'gatsby-tinacms-remark'],
+        plugins: [
+          'gatsby-tinacms-git',
+          {
+            resolve: 'gatsby-tinacms-git',
+            options: {
+              sshKey: process.env.SSH_KEY,
+            },
+          },
+        ],
       },
     },
   ],
