@@ -11,7 +11,7 @@ const PREV = [37]
 export default ({ children, index }) => {
   const data = useStaticQuery(graphql`
     query SlideCount {
-      allSlide {
+      allMarkdownRemark {
         totalCount
       }
     }
@@ -19,7 +19,7 @@ export default ({ children, index }) => {
 
   const changeSlide = (next = true) => {
     const newIndex = index + (next ? 1 : -1)
-    if (newIndex > data.allSlide.totalCount || newIndex < 1) {
+    if (newIndex > data.allMarkdownRemark.totalCount || newIndex < 1) {
       return
     }
 
@@ -68,7 +68,7 @@ export default ({ children, index }) => {
           }}
         >
           <span>Gábor</span>
-          <div>{`${index} / ${data.allSlide.totalCount}`}</div>
+          <div>{`${index} / ${data.allMarkdownRemark.totalCount}`}</div>
         </header>
 
         <motion.main

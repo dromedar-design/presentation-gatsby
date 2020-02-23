@@ -6,4 +6,4 @@ slug: alma
 
     vcbvcvc
 
-## _Evolution of content editing_
+## _Evolution is cool of content editing_

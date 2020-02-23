@@ -1,14 +1,6 @@
-Images can be embedded from the local filesystem!
-
-![xkcd on standards](./standards.png)
-
-(attribution: xkcd.com)
-
+---
+slug: korte
+title: akdsadsad
 ---
 
-![Monkey](//i.imgur.com/PnbINJ6.gif)
-
-🌟 Star it on [GitHub](//github.com/fabe/gatsby-deck),  
-or create your own with:
-
-    xxx
+Images can be embedded from the local filesystem!

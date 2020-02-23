@@ -1,96 +1,37 @@
-const path = require("path")
-const _ = require("lodash")
+const path = require(`path`)
 
-// Remove trailing slash
-exports.onCreatePage = ({ page, actions }) => {
-  const { createPage, deletePage } = actions
+exports.createPages = async ({ actions, graphql, reporter }) => {
+  const { createPage } = actions
 
-  return new Promise((resolve, reject) => {
-    // Remove trailing slash
-    const newPage = Object.assign({}, page, {
-      path: page.path === `/` ? page.path : page.path.replace(/\/$/, ``),
-    })
+  const template = path.resolve(`src/templates/slide.js`)
 
-    if (newPage.path !== page.path) {
-      // Remove the old page
-      deletePage(page)
-      // Add the new page
-      createPage(newPage)
-    }
-
-    resolve()
-  })
-}
-
-// Create pages from markdown nodes
-exports.createPages = ({
-  actions,
-  createContentDigest,
-  createNodeId,
-  graphql,
-}) => {
-  const { createPage, createNode } = actions
-  const slideTemplate = path.resolve(`src/templates/slide.js`)
-
-  return graphql(`
+  const result = await graphql(`
     {
       allMarkdownRemark {
         edges {
           node {
-            fileAbsolutePath
-            html
+            frontmatter {
+              slug
+            }
           }
         }
       }
     }
-  `).then(result => {
-    if (result.errors) {
-      return Promise.reject(result.errors)
-    }
+  `)
 
-    const slides = result.data.allMarkdownRemark.edges
-    slides.sort((a, b) =>
-      a.node.fileAbsolutePath > b.node.fileAbsolutePath ? 1 : -1
-    )
-    const nodes = slides.flatMap(s =>
-      s.node.html.split("<hr>").map(html => ({
-        node: s.node,
-        html,
-      }))
-    )
+  // Handle errors
+  if (result.errors) {
+    reporter.panicOnBuild(`Error while running GraphQL query.`)
+    return
+  }
 
-    nodes.forEach(({ node, html }, index) => {
-      createNode({
-        id: createNodeId(`${node.id}_${index + 1} >>> Slide`),
-        parent: node.id,
-        children: [],
-        internal: {
-          type: `Slide`,
-          contentDigest: createContentDigest(html),
-        },
-        html: html,
-        index: index + 1,
-      })
-    })
-
-    nodes.forEach((slide, index) => {
-      createPage({
-        path: `/${index + 1}`,
-        component: slideTemplate,
-        context: {
-          index: index + 1,
-          absolutePath: process.cwd() + `/src/slides#${index + 1}`,
-        },
-      })
+  result.data.allMarkdownRemark.edges.forEach(({ node }) => {
+    createPage({
+      path: node.frontmatter.slug,
+      component: template,
+      context: {
+        slug: node.frontmatter.slug,
+      },
     })
   })
-}
-
-exports.sourceNodes = ({ actions }) => {
-  actions.createTypes(`
-    type Slide implements Node {
-      html: String
-      index: Int
-    }
-  `)
 }
