@@ -4,6 +4,6 @@ slug: alma
 ---
 # WordPress to Gatsby
 
-    edited from the template
+    edited from live,
 
 ## _Evolution is cool of content editing_
