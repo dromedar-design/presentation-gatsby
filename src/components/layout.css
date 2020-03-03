@@ -30,6 +30,7 @@ html {
   background: var(--black);
   color: white;
   font-size: 120%;
+  border-radius: 8px;
 }
 .dd-navigation:hover {
   opacity: 0.8;

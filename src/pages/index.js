@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 
 const IndexPage = () => {
   useEffect(() => {
-    navigate('/1', {
+    navigate('/start', {
       replace: true,
     })
   }, [])

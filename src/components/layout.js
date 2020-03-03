@@ -5,10 +5,14 @@ import React, { useEffect } from 'react'
 import Helmet from 'react-helmet'
 import './layout.css'
 
-const NEXT = [13, 32, 39]
-const PREV = [37]
+const KEYS = [
+  { next: false, key: 33, alt: false },
+  { next: false, key: 37, alt: true },
+  { next: true, key: 34, alt: false },
+  { next: true, key: 39, alt: true },
+]
 
-export default ({ children, index }) => {
+export default ({ children, context: { next, prev, title, index } }) => {
   const data = useStaticQuery(graphql`
     query SlideCount {
       allMarkdownRemark {
@@ -17,24 +21,23 @@ export default ({ children, index }) => {
     }
   `)
 
-  const changeSlide = (next = true) => {
-    const newIndex = index + (next ? 1 : -1)
-    if (newIndex > data.allMarkdownRemark.totalCount || newIndex < 1) {
-      return
+  const changeSlide = (nextSlide = true) => {
+    if (nextSlide) {
+      if (!next) return
+      return navigate(`/${next}`)
     }
 
-    navigate(`/${newIndex}`)
+    if (!prev) return
+    navigate(`/${prev}`)
   }
 
-  const onKeyDown = ({ keyCode }) => {
-    if (NEXT.indexOf(keyCode) !== -1) {
-      changeSlide()
-      return
-    }
+  const onKeyDown = ({ altKey, keyCode }) => {
+    const event = KEYS.filter(k => k.alt === altKey).filter(
+      k => k.key === keyCode
+    )
 
-    if (PREV.indexOf(keyCode) !== -1) {
-      changeSlide(false)
-      return
+    if (event.length) {
+      changeSlide(event[0].next)
     }
   }
 
@@ -67,7 +70,7 @@ export default ({ children, index }) => {
             justifyContent: 'space-between',
           }}
         >
-          <span>Gábor</span>
+          <span>{title}</span>
           <div>{`${index} / ${data.allMarkdownRemark.totalCount}`}</div>
         </header>
 
@@ -108,14 +111,14 @@ export default ({ children, index }) => {
             <button
               onClick={() => changeSlide(false)}
               style={{ margin: 10 }}
-              class="dd-navigation"
+              className="dd-navigation"
             >
               &#8249;
             </button>
             <button
               onClick={() => changeSlide()}
               style={{ margin: 10 }}
-              class="dd-navigation"
+              className="dd-navigation"
             >
               &#8250;
             </button>
