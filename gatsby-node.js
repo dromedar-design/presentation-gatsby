@@ -52,7 +52,11 @@ exports.onCreateNode = ({ node, actions }) => {
     createNodeField({
       node,
       name: 'slug',
-      value: node.frontmatter.slug || slugify(node.frontmatter.title),
+      value:
+        node.frontmatter.slug ||
+        slugify(node.frontmatter.title, {
+          lower: true,
+        }),
     })
   }
 }

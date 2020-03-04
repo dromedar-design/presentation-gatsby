@@ -6,13 +6,21 @@ import Helmet from 'react-helmet'
 import './layout.css'
 
 const KEYS = [
-  { next: false, key: 33, alt: false },
-  { next: false, key: 37, alt: true },
-  { next: true, key: 34, alt: false },
-  { next: true, key: 39, alt: true },
+  { next: false, key: 33 }, // page up
+  { next: false, key: 37 }, // left
+  { next: false, key: 38 }, // up
+
+  { next: true, key: 34 }, // page down
+  { next: true, key: 39 }, // right
+  { next: true, key: 40 }, // down
+  { next: true, key: 32 }, // space
+  { next: true, key: 13 }, // enter
 ]
 
-export default ({ children, context: { next, prev, title, index } }) => {
+export default ({
+  children,
+  context: { next, prev, title, index, isEditing, setIsEditing },
+}) => {
   const data = useStaticQuery(graphql`
     query SlideCount {
       allMarkdownRemark {
@@ -22,6 +30,8 @@ export default ({ children, context: { next, prev, title, index } }) => {
   `)
 
   const changeSlide = (nextSlide = true) => {
+    if (isEditing) return
+
     if (nextSlide) {
       if (!next) return
       return navigate(`/${next}`)
@@ -31,13 +41,11 @@ export default ({ children, context: { next, prev, title, index } }) => {
     navigate(`/${prev}`)
   }
 
-  const onKeyDown = ({ altKey, keyCode }) => {
-    const event = KEYS.filter(k => k.alt === altKey).filter(
-      k => k.key === keyCode
-    )
+  const onKeyDown = ({ keyCode }) => {
+    const event = KEYS.find(k => k.key === keyCode)
 
-    if (event.length) {
-      changeSlide(event[0].next)
+    if (event) {
+      changeSlide(event.next)
     }
   }
 
@@ -62,6 +70,7 @@ export default ({ children, context: { next, prev, title, index } }) => {
           display: 'flex',
           flexDirection: 'column',
           padding: '2rem',
+          background: isEditing ? 'lightyellow' : 'transparent',
         }}
       >
         <header
@@ -83,9 +92,10 @@ export default ({ children, context: { next, prev, title, index } }) => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           style={{
-            alignSelf: 'center',
             flex: 1,
-            maxWidth: '70rem',
+            alignSelf: 'center',
+            width: '70rem',
+            maxWidth: '100%',
             padding: '2rem',
           }}
         >
@@ -97,6 +107,7 @@ export default ({ children, context: { next, prev, title, index } }) => {
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
+            paddingLeft: 50,
           }}
         >
           <a
@@ -106,6 +117,14 @@ export default ({ children, context: { next, prev, title, index } }) => {
           >
             https://dromedar.design
           </a>
+
+          <button
+            className="dd-navigation"
+            style={{ width: 'auto', height: 'auto', padding: '10px 20px' }}
+            onClick={() => setIsEditing(p => !p)}
+          >
+            {isEditing ? 'Preview' : 'Edit'}
+          </button>
 
           <div>
             <button
